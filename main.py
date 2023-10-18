@@ -29,7 +29,7 @@ while True :
      colors = np.array(colors) 
      colors = np.tile(colors, (18,1)) 
 
-     model = cv2.dnn.readNetFromDarknet("Real-Time-Object-Detection\yolov3.cfg", "Real-Time-Object-Detection\yolov3.weights")
+     model = cv2.dnn.readNetFromDarknet("yolov3.cfg", "yolov3.weights")
      layers = model.getLayerNames()
     
      output_layer = [layers[layer-1] for layer in model.getUnconnectedOutLayers()]
