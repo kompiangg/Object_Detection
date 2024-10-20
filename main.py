@@ -32,6 +32,7 @@ redisClient = redis.from_url("redis://local-user:123@localhost:6379")
 topic = "object-detection"
 
 def get_output_layers():
+    last_label = ""
     # Stream the data
     while True :
         # Read Retangle and frame of second data
@@ -60,6 +61,9 @@ def get_output_layers():
         ids_list = []
         boxes_list = []
         confidences_list = []
+        label = ''
+        sentLabel = ''
+        
         # Get the each layer on detection layers -> detection later <- object detection (useable)
         for detection_layer in detection_layers:
             for object_detection in detection_layer:
@@ -109,13 +113,20 @@ def get_output_layers():
                 box_color = colors[predicted_id]
                 box_color = [int(each) for each in box_color]
                 
+                sentLabel = label
                 confidenceLabel = "{}: {:.2f}%".format(label, confidence * 100)
 
                 cv2.rectangle(frame, (start_x, start_y), (end_x, end_y), box_color, 2)
                 cv2.putText(frame, confidenceLabel, (start_x,start_y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, box_color,2)
 
-        redisClient.publish(topic, str(label))
+        if (sentLabel == ""):
+            sentLabel = last_label
+        else:
+            redisClient.set(topic, sentLabel)
+            last_label = sentLabel
+
         cv2.imshow("Real Time Object Detection v2", frame)
+        sentLabel = ""
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
